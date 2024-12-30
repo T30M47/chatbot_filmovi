@@ -102,23 +102,23 @@ app.post('/webhook', (req, res) => {
     };
 
     // Check if the intent is asking for popular movies (context-based question)
-    console.log(req.body.queryResult?.inputContexts);
-    const isPopularMoviesQuestion = req.body.queryResult?.inputContexts?.some(context =>
+    console.log(req.body.queryResult?.outputContexts);
+    const isNotPopularMoviesQuestion = req.body.queryResult?.outputContexts?.some(context =>
         context.name.includes('genre')
     );
 
     let responseText;
 
-    if (isPopularMoviesQuestion) {
-        // Return context-based popular movies response
-        console.log(`Returning context-based response for genre: ${genre}`);
-        responseText = genreContextResponses[genre.toLowerCase()]?.[0] || `Sorry, I don't have popular movies for ${genre}.`;
-    } else {
+    if (isNotPopularMoviesQuestion) {
         // Return genre-based movie list (normal genre-based question)
         console.log(`Returning normal genre-based response for genre: ${genre}`);
         responseText = genreMovies[genre.toLowerCase()]
             ? genreMovies[genre.toLowerCase()][Math.floor(Math.random() * genreMovies[genre.toLowerCase()].length)]
             : `Sorry, I don't have recommendations for ${genre} movies.`;
+    } else {
+        // Return context-based popular movies response
+        console.log(`Returning context-based response for genre: ${genre}`);
+        responseText = genreContextResponses[genre.toLowerCase()]?.[0] || `Sorry, I don't have popular movies for ${genre}.`;
     }
 
     // Send response with genre-based or context-based movie recommendations
