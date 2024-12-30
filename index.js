@@ -15,7 +15,7 @@ app.get('/', function (req, res) {
     res.send('Hello world, I am MovieBot!');
 });
 
-app.post('/webook/', function (req, res) {
+app.post('/webook', function (req, res) {
     console.log(JSON.stringify(req.body)); // Log the incoming request body to inspect the structure
     const genre = req.body.queryResult.parameters.genre;  // Extract the genre from parameters
 
