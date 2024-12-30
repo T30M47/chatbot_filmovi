@@ -101,7 +101,7 @@ app.post('/webhook', (req, res) => {
         ]
     };
 
-  
+    const intent = req.body.queryResult?.intent?.displayName;
     let responseText;
 
     if (intent === 'get_popularmovies_genre') {
