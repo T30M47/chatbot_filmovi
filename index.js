@@ -10,12 +10,13 @@ app.get('/', (req, res) => {
     res.send('Webhook Server is Running!');
 });
 
+// Webhook Endpoint
 app.post('/webhook', (req, res) => {
     console.log('Request Body:', JSON.stringify(req.body)); // Log the full request body
 
-    // Extract genre from parameters
-    const genre = req.body.sessionInfo?.parameters?.genre; // Use optional chaining to safely access 'parameters'
-    
+    // Access genre from queryResult.parameters
+    const genre = req.body.queryResult?.parameters?.genre; // Adjusted to queryResult.parameters
+
     if (!genre) {
         console.log('No genre found in request parameters.');
         return res.json({
@@ -34,7 +35,7 @@ app.post('/webhook', (req, res) => {
         horror: "Here are some Horror movies: The Conjuring, IT, A Nightmare on Elm Street."
     };
 
-    const responseText = genreMovies[genre] || `Sorry, I don't have recommendations for ${genre} movies.`;
+    const responseText = genreMovies[genre.toLowerCase()] || `Sorry, I don't have recommendations for ${genre} movies.`;
 
     res.json({
         fulfillmentMessages: [
@@ -45,8 +46,6 @@ app.post('/webhook', (req, res) => {
     });
 });
 
-
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
