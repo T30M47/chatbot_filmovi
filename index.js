@@ -6,6 +6,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+    res.send('Webhook Server is Running!');
+});
+
 // Webhook Endpoint
 app.post('/webhook', (req, res) => {
     const genre = req.body.sessionInfo.parameters.genre; // Extract genre from parameters
