@@ -42,6 +42,26 @@ app.post('/webhook', (req, res) => {
             "Here are some Horror movies: The Conjuring, Apostel, Do Not Breathe.",
             "Here are some Horror movies: Jaws, Hereditary, Nosferatu.",
             "Here are some Horror movies: The Substance, The Exorcism of Emile Rose, The ritual."
+        ], 
+        comedy: [
+            "Here are some Comedy movies: Beetlejuice, Elf, Home Alone.",
+            "Here are some Comedy movies: Meet the Fockers, Ratatouille, Red One.",
+            "Here are some Comedy movies: Wonka, Anora, Scrooged."
+        ], 
+        adventure: [
+            "Here are some Adventure movies: 2012, Avatar, Interstellar.",
+            "Here are some Adventure movies: Jaws, Red One, Wonka.",
+            "Here are some Adventure movies: Superman, Klaus, A Christmas Carol."
+        ], 
+        thriller: [
+            "Here are some Thriller movies: Rebecca, Room, Homestead.",
+            "Here are some Thriller movies: Apostle, Insidious, Pentagram.",
+            "Here are some Thriller movies: Saw, The Visit, Conclave."
+        ], 
+        scifi: [
+            "Here are some Sci-Fi movies: Avatar, Interstellar, Matrix.",
+            "Here are some Sci-Fi movies: Source code, The Lazarus Effect, Elevation.",
+            "Here are some Sci-Fi movies: Tenet, Blade Runner, Contact.",
         ]
     };
 
