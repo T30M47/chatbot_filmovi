@@ -10,9 +10,22 @@ app.get('/', (req, res) => {
     res.send('Webhook Server is Running!');
 });
 
-// Webhook Endpoint
 app.post('/webhook', (req, res) => {
-    const genre = req.body.sessionInfo.parameters.genre; // Extract genre from parameters
+    console.log('Request Body:', JSON.stringify(req.body)); // Log the full request body
+
+    // Extract genre from parameters
+    const genre = req.body.sessionInfo?.parameters?.genre; // Use optional chaining to safely access 'parameters'
+    
+    if (!genre) {
+        console.log('No genre found in request parameters.');
+        return res.json({
+            fulfillmentMessages: [
+                {
+                    text: { text: ["Sorry, I didn't receive a genre."] }
+                }
+            ]
+        });
+    }
 
     const genreMovies = {
         action: "Here are some Action movies: Matrix, Gladiator, John Wick.",
@@ -23,7 +36,6 @@ app.post('/webhook', (req, res) => {
 
     const responseText = genreMovies[genre] || `Sorry, I don't have recommendations for ${genre} movies.`;
 
-    // Send Response
     res.json({
         fulfillmentMessages: [
             {
@@ -32,6 +44,7 @@ app.post('/webhook', (req, res) => {
         ]
     });
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
