@@ -10,13 +10,12 @@ app.get('/', (req, res) => {
     res.send('Webhook Server is Running!');
 });
 
-// Webhook Endpoint
+// url za webhook
 app.post('/webhook', (req, res) => {
-    console.log('Request Body:', JSON.stringify(req.body)); // Log the full request body
+    // dohvaćanje žanra
+    const genre = req.body.queryResult?.parameters?.genre; 
 
-    // Access genre from queryResult.parameters
-    const genre = req.body.queryResult?.parameters?.genre; // Adjusted to queryResult.parameters
-
+    // ako ne nađe žanr
     if (!genre) {
         console.log('No genre found in request parameters.');
         return res.json({
@@ -29,13 +28,28 @@ app.post('/webhook', (req, res) => {
     }
 
     const genreMovies = {
-        action: "Here are some Action movies: Matrix, Gladiator, John Wick.",
-        drama: "Here are some Drama movies: The Shawshank Redemption, Fight Club.",
-        sci_fi: "Here are some Sci-Fi movies: Interstellar, The Martian, Blade Runner 2049.",
-        horror: "Here are some Horror movies: The Conjuring, IT, A Nightmare on Elm Street."
+        action: [
+            "Here are some Action movies: Matrix, Gladiator, Avatar.",
+            "Here are some Action movies: Twisters, Red One, Baby Driver.",
+            "Here are some Action movies: Carry on, Gladiator, John Wick.",
+        ],
+        drama: [
+            "Here are some Drama movies: Bohemian Rhapsody, Forrest Gump, Intouchables.",
+            "Here are some Drama movies: Joker, Oppenheimer, The Lion King.",
+            "Here are some Drama movies: Titanic, Orphan, Babygirl."
+        ],
+        horror: [
+            "Here are some Horror movies: The Conjuring, Apostel, Do Not Breathe.",
+            "Here are some Horror movies: Jaws, Hereditary, Nosferatu.",
+            "Here are some Horror movies: The Substance, The Exorcism of Emile Rose, The ritual."
+        ]
     };
 
-    const responseText = genreMovies[genre.toLowerCase()] || `Sorry, I don't have recommendations for ${genre} movies.`;
+    // Get a random response for the selected genre
+    const genreResponse = genreMovies[genre.toLowerCase()];
+    const responseText = genreResponse 
+        ? genreResponse[Math.floor(Math.random() * genreResponse.length)] // Nasumićan izbor odgovora
+        : `Sorry, I don't have recommendations for ${genre} movies.`;
 
     res.json({
         fulfillmentMessages: [
