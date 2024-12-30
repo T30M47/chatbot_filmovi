@@ -37,7 +37,7 @@ app.post('/webhook', (req, res) => {
         });
     }
 
-    // Define genre movie recommendations (randomly chosen for each context)
+    // Define genre movie recommendations
     const genreMovies = {
         action: [
             "Here are some Action movies: Matrix, Gladiator, Avatar.",
@@ -76,7 +76,7 @@ app.post('/webhook', (req, res) => {
         ]
     };
 
-    // Add different answers based on genre context
+    // Define context-based responses (only for popular movies)
     const genreContextResponses = {
         action: [
             "Some of the most popular action movies on our platform are: Matrix, The Dark Knight, John Wick and Gladiator."
@@ -88,31 +88,37 @@ app.post('/webhook', (req, res) => {
             "Some of the most popular horror movies on our platform are: Jaws, The Shining, Psycho"
         ],
         comedy: [
-            "Some of the most popular horror movies on our platform are: La vita è bella, Modern Times, Home Alone"
+            "Some of the most popular comedy movies on our platform are: La vita è bella, Modern Times, Home Alone"
         ],
         adventure: [
-            "Some of the most popular horror movies on our platform are: Inception, Interstellar, The Lion King"
+            "Some of the most popular adventure movies on our platform are: Inception, Interstellar, The Lion King"
         ],
         thriller: [
-            "Some of the most popular horror movies on our platform are: Seven, The Prestige, The Departed"
+            "Some of the most popular thriller movies on our platform are: Seven, The Prestige, The Departed"
         ],
         scifi: [
-           "Some of the most popular horror movies on our platform are:  The Terminator, The Thing, Logan"
+            "Some of the most popular sci-fi movies on our platform are: The Terminator, The Thing, Logan"
         ]
     };
 
-    // Get a random response for the selected genre or context
-    const genreResponse = genreMovies[genre.toLowerCase()];
-    const contextResponse = genreContextResponses[genre.toLowerCase()];
+    // Check if the intent is asking for popular movies (context-based question)
+    const isPopularMoviesQuestion = req.body.queryResult?.outputContexts?.some(context =>
+        context.name.includes('genre') && context.parameters?.genre
+    );
 
-    // Use random context-based responses if available, otherwise default to genre movie list
-    const responseText = contextResponse
-        ? contextResponse[Math.floor(Math.random() * contextResponse.length)] 
-        : (genreResponse
-            ? genreResponse[Math.floor(Math.random() * genreResponse.length)]
-            : `Sorry, I don't have recommendations for ${genre} movies.`);
+    let responseText;
 
-    // Send response with genre-based movie recommendations
+    if (isPopularMoviesQuestion) {
+        // Return context-based popular movies response
+        responseText = genreContextResponses[genre.toLowerCase()]?.[0] || `Sorry, I don't have popular movies for ${genre}.`;
+    } else {
+        // Return genre-based movie list (normal genre-based question)
+        responseText = genreMovies[genre.toLowerCase()]
+            ? genreMovies[genre.toLowerCase()][Math.floor(Math.random() * genreMovies[genre.toLowerCase()].length)]
+            : `Sorry, I don't have recommendations for ${genre} movies.`;
+    }
+
+    // Send response with genre-based or context-based movie recommendations
     res.json({
         fulfillmentMessages: [
             {
