@@ -79,7 +79,7 @@ app.post('/webhook', (req, res) => {
     // Define context-based responses (only for popular movies)
     const genreContextResponses = {
         action: [
-            "Some of the most popular action movies on our platform are: Matrix, The Dark Knight, John Wick and Gladiator."
+            "Some of the most popular action movies on our platform are: Matrix, The Dark Knight, John Wick, and Gladiator."
         ],
         drama: [
             "Some of the most popular drama movies on our platform are: The Godfather, Forrest Gump, Intouchables"
@@ -106,14 +106,15 @@ app.post('/webhook', (req, res) => {
         context.name.includes('genre') && context.parameters?.genre
     );
 
-
     let responseText;
 
     if (isPopularMoviesQuestion) {
         // Return context-based popular movies response
+        console.log(`Returning context-based response for genre: ${genre}`);
         responseText = genreContextResponses[genre.toLowerCase()]?.[0] || `Sorry, I don't have popular movies for ${genre}.`;
     } else {
         // Return genre-based movie list (normal genre-based question)
+        console.log(`Returning normal genre-based response for genre: ${genre}`);
         responseText = genreMovies[genre.toLowerCase()]
             ? genreMovies[genre.toLowerCase()][Math.floor(Math.random() * genreMovies[genre.toLowerCase()].length)]
             : `Sorry, I don't have recommendations for ${genre} movies.`;
@@ -130,7 +131,7 @@ app.post('/webhook', (req, res) => {
         outputContexts: [
             {
                 name: req.body.session + '/contexts/genre',
-                lifespanCount: 2,
+                lifespanCount: 1,
                 parameters: {
                     genre: genre
                 }
