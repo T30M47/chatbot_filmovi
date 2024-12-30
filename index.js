@@ -102,8 +102,9 @@ app.post('/webhook', (req, res) => {
     };
 
     // Check if the intent is asking for popular movies (context-based question)
+    console.log(req.body.queryResult?.inputContexts);
     const isPopularMoviesQuestion = req.body.queryResult?.inputContexts?.some(context =>
-        context.name.includes('genre') && context.parameters?.genre
+        context.name.includes('genre')
     );
 
     let responseText;
