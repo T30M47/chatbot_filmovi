@@ -71,14 +71,10 @@ app.post('/webhook', (req, res) => {
         if (intent === 'search_movies_by_actor') {
             // If the intent is search_movies_by_actor, proceed with the actor search
             if (actorName) {
-                getMoviesByActor(actorName, (error, movies) => {
-                    if (error) {
-                        responseText = error;
-                    } else {
-                        responseText = `Here are the movies with ${actorName}: ${movies.join(', ')}`;
-                    }
-
-                    // Send the response back
+                getMoviesByActor(actorName, (movies) => {
+                    let responseText = movies.length > 0 ? 
+                        `Here are the movies with ${actorName}: ${movies.join(', ')}` : 
+                        `Sorry, I couldn't find any movies with ${actorName}.`;
                     res.json({
                         fulfillmentMessages: [
                             {
