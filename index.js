@@ -41,6 +41,13 @@ function extractActorFromQuery(query, actorsList) {
             return actor;
         }
     }
+    res.json({
+        fulfillmentMessages: [
+            {
+                text: { text: ["Please tell me."] }
+            }
+        ]
+    });
     return null;
 }
 
