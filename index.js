@@ -61,13 +61,12 @@ function loadActors(callback) {
 // URL for webhook
 app.post('/webhook', (req, res) => {
     // Fetch the genre from request parameters or output context
-    let genre = req.body.queryResult?.parameters?.genre;
+    //let genre = req.body.queryResult?.parameters?.genre;
+    const intent = req.body.queryResult?.intent?.displayName;
     let queryText = req.body.queryResult?.queryText;
 
     loadActors((actorsList) => {
         let actorName = extractActorFromQuery(queryText, actorsList); // Extract actor name from query text
-
-        let responseText;
 
         if (intent === 'search_movies_by_actor') {
             // If the intent is search_movies_by_actor, proceed with the actor search
@@ -100,6 +99,7 @@ app.post('/webhook', (req, res) => {
             }
         } else {
             // Check if genre exists in parameters, otherwise, check context
+            let genre = req.body.queryResult?.parameters?.genre;
             if (!genre) {
                 const context = req.body.queryResult?.outputContexts;
                 const genreContext = context?.find(ctx => ctx.name.includes('genre'));
