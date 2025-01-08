@@ -9,86 +9,83 @@ const csv = require('csv-parser');
 
 app.use(bodyParser.json());
 
-const actorsFilePath = path.join(__dirname, 'actors.csv');
-
 app.get('/', (req, res) => {
     res.send('Webhook Server is Running!');
 });
 
-const loadActors = () => {
-    return new Promise((resolve, reject) => {
-      const actorsSet = new Set();
-      
-      fs.createReadStream(actorsFilePath)
+function getMoviesByActor(actorName) {
+    const movies = [];
+    fs.createReadStream('actors.csv')
         .pipe(csv())
         .on('data', (row) => {
-          if (row.actor1) actorsSet.add(row.actor1.trim());
-          if (row.actor2) actorsSet.add(row.actor2.trim());
-          if (row.actor3) actorsSet.add(row.actor3.trim());
+            if (
+                row.actor1.toLowerCase().includes(actorName.toLowerCase()) ||
+                row.actor2.toLowerCase().includes(actorName.toLowerCase()) ||
+                row.actor3.toLowerCase().includes(actorName.toLowerCase())
+            ) {
+                movies.push(row.movie);
+            }
         })
-        .on('end', () => resolve(Array.from(actorsSet)))
-        .on('error', (err) => reject(err));
-    });
-  };
+        .on('end', () => {
+            if (movies.length > 0) {
+                return movies;
+            } else {
+                return `Sorry, I couldn't find any movies with ${actorName}.`;
+            }
+        });
+}
 
-  const getMoviesByActor = (actorName) => {
-    return new Promise((resolve, reject) => {
-      const movies = [];
-      
-      fs.createReadStream(actorsFilePath)
-        .pipe(csv())
-        .on('data', (row) => {
-          if (
-            row.actor1.toLowerCase().includes(actorName.toLowerCase()) ||
-            row.actor2.toLowerCase().includes(actorName.toLowerCase()) ||
-            row.actor3.toLowerCase().includes(actorName.toLowerCase())
-          ) {
-            movies.push(row.movie);
-          }
-        })
-        .on('end', () => resolve(movies))
-        .on('error', (err) => reject(err));
-    });
-  };
-
-const extractActorFromQuery = (query, actorsList) => {
+function extractActorFromQuery(query, actorsList) {
     for (const actor of actorsList) {
-      if (query.toLowerCase().includes(actor.toLowerCase())) {
-        return actor;
-      }
+        if (query.toLowerCase().includes(actor.toLowerCase())) {
+            return actor;
+        }
     }
     return null;
-};
+}
+
+function loadActors(callback) {
+    const actorsSet = new Set();
+    fs.createReadStream('actors.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+            if (row.actor1) actorsSet.add(row.actor1.trim());
+            if (row.actor2) actorsSet.add(row.actor2.trim());
+            if (row.actor3) actorsSet.add(row.actor3.trim());
+        })
+        .on('end', () => {
+            callback(Array.from(actorsSet));
+        });
+}
 
 // URL for webhook
-app.post('/webhook', async (req, res) => {
+app.post('/webhook', (req, res) => {
     // Fetch the genre from request parameters or output context
     //let genre = req.body.queryResult?.parameters?.genre;
     const intent = req.body.queryResult?.intent?.displayName;
     let queryText = req.body.queryResult?.queryText;
 
-    try {
-        const actorsList = await loadActors();
+    loadActors((actorsList) => {
         let actorName = extractActorFromQuery(queryText, actorsList); // Extract actor name from query text
 
         if (intent === 'search_movies_by_actor') {
             // If the intent is search_movies_by_actor, proceed with the actor search
             if (actorName) {
-                const movies = await getMoviesByActor(actorName);
-                const responseText = movies.length > 0 ? 
-                    `Here are the movies with ${actorName}: ${movies.join(', ')}` : 
-                    `Sorry, I couldn't find any movies with ${actorName}.`;
-
-                return res.json({
-                    fulfillmentMessages: [
-                        {
-                            text: { text: [responseText] }
-                        }
-                    ]
+                getMoviesByActor(actorName, (movies) => {
+                    let responseText = movies.length > 0 ? 
+                        `Here are the movies with ${actorName}: ${movies.join(', ')}` : 
+                        `Sorry, I couldn't find any movies with ${actorName}.`;
+                    res.json({
+                        fulfillmentMessages: [
+                            {
+                                text: { text: [responseText] }
+                            }
+                        ]
+                    });
                 });
             } else {
-                const responseText = "Please specify the actor you are interested in.";
-                return res.json({
+                responseText = "Please specify the actor you are interested in.";
+                res.json({
                     fulfillmentMessages: [
                         {
                             text: { text: [responseText] }
@@ -219,16 +216,7 @@ app.post('/webhook', async (req, res) => {
                 ]
             });
         }
-    } catch (error) {
-        console.error('Error processing request:', error);
-        return res.status(500).json({
-            fulfillmentMessages: [
-                {
-                    text: { text: ["Sorry, there was an error processing your request. Please try again later."] }
-                }
-            ]
-        });
-    }
+    });
 });
 
 app.listen(PORT, () => {
